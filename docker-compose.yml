@@ -83,6 +83,53 @@ services:
       - kafka3-data:/var/lib/kafka/data
       - cluster-id:/tmp/clusterID
     # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
+
+kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    restart: always
+    container_name: kafka-ui
+    ports:
+      - 8080:8080
+    depends_on:
+      - broker
+      - schemaregistry
+      - kafka-connect
+    environment:
+      KAFKA_CLUSTERS_0_NAME: bogenhuset
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:39092,kafka2:39093,kafka3:39094
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry:8085
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: andor
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      TRUST_STORE: '/opt/cert/ui-for-apache-kafka.p12'
+      TRUST_STORE_PASSWORD: 'Fvck2022!'
+
+      # OAUTH2
+      AUTH_TYPE: OAUTH2
+      AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID: dfdb6ffaf9ed34353267
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: 83823d2ce3a9f854858a615bd4bbb12541cd703b
+      AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
+      AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
+      AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
+      AUTH_OAUTH2_CLIENT_GITHUB_REDIRECT_URI: https://kafka.publicnode.eu/login/oauth2/code/github
+
+      # BASIC AUTH
+      #AUTH_TYPE: 'LOGIN_FORM'
+      #SPRING_SECURITY_USER_NAME: vr-admin
+      #SPRING_SECURITY_USER_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
+      #SPRINT_BOOT_ADMIN_CLIENT_USERNAME: vr-admin
+      #SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
+    volumes:
+      - kafka_ui_roles:/roles.yml
+      - kafka_ui_sprint_config:/sprint-config.yml
+
+secrets:
+  kafka_ui_roles:
+    external: true
+  kafka_ui_sprint_config:
+    external: true
+
 volumes:
   cluster-id:
   kafka1-data:
