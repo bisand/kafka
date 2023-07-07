@@ -1,17 +1,10 @@
 #!/bin/bash
 
-file_path="/tmp/clusterID/clusterID"
-interval=5  # wait interval in seconds
-
-while [ ! -e "$file_path" ] || [ ! -s "$file_path" ]; do
-  echo "Waiting for $file_path to be created..."
-  sleep $interval
-done
-
-cat "$file_path"
-
 # Path to the config.properties file
-config_file="config/kraft/server.properties"
+SOURCE_CONFIG_FILE="config/kraft/server.properties"
+CONFIG_FILE="custom/server.properties"
+
+cp $SOURCE_CONFIG_FILE $CONFIG_FILE
 
 # Iterate over all environment variables
 for var in "${!KAFKA_@}"; do
@@ -23,13 +16,13 @@ for var in "${!KAFKA_@}"; do
     key=$(echo "$key" | tr '[:upper:]' '[:lower:]' | tr '_' '.')
 
     # Append or update the key-value pair in the config.properties file
-    if grep -q "^$key=" "$config_file"; then
-        sed -i "s|^$key=.*|$key=$value|" "$config_file"
+    if grep -q "^$key=" "$CONFIG_FILE"; then
+        sed -i "s|^$key=.*|$key=$value|" "$CONFIG_FILE"
     else
-        echo "$key=$value" >> "$config_file"
+        echo "$key=$value" >> "$CONFIG_FILE"
     fi
 done
 
 # KRaft required step: Format the storage directory with a new cluster ID
-bin/kafka-storage.sh format --ignore-formatted -t $(cat "$file_path") -c $config_file
-bin/kafka-server-start.sh $config_file
+bin/kafka-storage.sh format --ignore-formatted -t $CLUSTER_ID -c $CONFIG_FILE
+bin/kafka-server-start.sh $CONFIG_FILE

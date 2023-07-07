@@ -1,117 +1,97 @@
 version: "3.5"
 services:
 
-  kafka-gen:
+  kafka-1:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka-gen
-    container_name: kafka-gen
-    volumes:
-      - cluster-id:/tmp/clusterID
-    command: "bash -c '/opt/kafka/custom/bin/create-cluster-id.sh'"
-
-  kafka1:
-    image: bisand/kafka:2.13-3.5.0
-    hostname: kafka1
-    container_name: kafka1
+    hostname: kafka-1
     ports:
-      - "39092:39092"
+      - 19092:9092
+      - 19093:9093
     deploy:
       mode: replicated
       replicas: 1
     environment:
-      KAFKA_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092,CONTROLLER://kafka1:9093
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092
+      CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
+      KAFKA_LISTENERS: BROKER://kafka-1:9092,CONTROLLER://kafka-1:9093,EXTERNAL://kafka-1:19092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-1:9092,EXTERNAL://kafka-1:19092
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_PROCESS_ROLES: 'controller,broker'
       KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
-      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
-      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
-      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_BROKER_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     volumes:
-      - kafka1-data:/var/lib/kafka/data
+      - kafka-1-data:/var/lib/kafka/data
       - cluster-id:/tmp/clusterID
-    # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
 
-  kafka2:
+  kafka-2:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka2
-    container_name: kafka2
+    hostname: kafka-2
     ports:
-      - "39093:39093"
+      - 29092:9092
+      - 29093:9093
     deploy:
       mode: replicated
       replicas: 1
     environment:
-      KAFKA_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093,CONTROLLER://kafka2:9093
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093
+      CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
+      KAFKA_LISTENERS: BROKER://kafka-2:9092,CONTROLLER://kafka-2:9093,EXTERNAL://kafka-2:29092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-2:9092,EXTERNAL://kafka-2:29092
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_PROCESS_ROLES: 'controller,broker'
       KAFKA_NODE_ID: 2
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
-      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
-      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
-      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_BROKER_ID: 2
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     volumes:
-      - kafka2-data:/var/lib/kafka/data
+      - kafka-2-data:/var/lib/kafka/data
       - cluster-id:/tmp/clusterID
     # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
 
-  kafka3:
+  kafka-3:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka3
-    container_name: kafka3
+    hostname: kafka-3
     ports:
-      - "39094:39094"
+      - 39092:9092
+      - 39093:9093
     deploy:
       mode: replicated
       replicas: 1
     environment:
-      KAFKA_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094,CONTROLLER://kafka3:9093
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094
+      CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
+      KAFKA_LISTENERS: BROKER://kafka-3:9092,CONTROLLER://kafka-3:9093,EXTERNAL://kafka-3:39092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-3:9092,EXTERNAL://kafka-3:39092
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_PROCESS_ROLES: 'controller,broker'
       KAFKA_NODE_ID: 3
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
-      KAFKA_METADATA_LOG_SEGMENT_MS: 15000
-      KAFKA_METADATA_MAX_RETENTION_MS: 1200000
-      KAFKA_METADATA_LOG_MAX_RECORD_BYTES_BETWEEN_SNAPSHOTS: 2800
+      KAFKA_BROKER_ID: 3
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     volumes:
-      - kafka3-data:/var/lib/kafka/data
+      - kafka-3-data:/var/lib/kafka/data
       - cluster-id:/tmp/clusterID
     # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
 
-kafka-ui:
+  kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    restart: always
-    container_name: kafka-ui
     ports:
       - 8080:8080
     depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
+      - kafka-1
+      - kafka-2
+      - kafka-3
     deploy:
       mode: replicated
       replicas: 1
     environment:
       KAFKA_CLUSTERS_0_NAME: cluster-0
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:39092,kafka2:39093,kafka3:39094
-      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry:8085
-      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: cluster-0
-      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+      #KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry:8085
+      #KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: cluster-0
+      #KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
       DYNAMIC_CONFIG_ENABLED: 'true'
       TRUST_STORE: '/opt/cert/ui-for-apache-kafka.p12'
       TRUST_STORE_PASSWORD: 'Fvck2022!'
@@ -119,8 +99,8 @@ kafka-ui:
       # OAUTH2
       AUTH_TYPE: OAUTH2
       AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID:  /run/secrets/kafka_ui_client_id
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: /run/secrets/kafka_ui_client_secret
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID: <client_id>
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: <client_secret>
       AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
       AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
       AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
@@ -132,9 +112,14 @@ kafka-ui:
       #SPRING_SECURITY_USER_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
       #SPRINT_BOOT_ADMIN_CLIENT_USERNAME: vr-admin
       #SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
-    volumes:
-      - kafka_ui_roles:/roles.yml
-      - kafka_ui_sprint_config:/sprint-config.yml
+    configs:
+      - source: kafka_ui_roles
+        target: /roles.yml
+      - source: kafka_ui_sprint_config
+        target: /sprint-config.yml
+    secrets:
+      - kafka_ui_client_id
+      - kafka_ui_client_secret
 
 configs:
   kafka_ui_roles:
@@ -150,6 +135,6 @@ secrets:
 
 volumes:
   cluster-id:
-  kafka1-data:
-  kafka2-data:
-  kafka3-data:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
