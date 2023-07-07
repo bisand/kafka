@@ -15,6 +15,9 @@ services:
     container_name: kafka1
     ports:
       - "39092:39092"
+    deploy:
+      mode: replicated
+      replicas: 1
     environment:
       KAFKA_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092,CONTROLLER://kafka1:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka1:19092,EXTERNAL://kafka1:39092
@@ -40,6 +43,9 @@ services:
     container_name: kafka2
     ports:
       - "39093:39093"
+    deploy:
+      mode: replicated
+      replicas: 1
     environment:
       KAFKA_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093,CONTROLLER://kafka2:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka2:19093,EXTERNAL://kafka2:39093
@@ -65,6 +71,9 @@ services:
     container_name: kafka3
     ports:
       - "39094:39094"
+    deploy:
+      mode: replicated
+      replicas: 1
     environment:
       KAFKA_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094,CONTROLLER://kafka3:9093
       KAFKA_ADVERTISED_LISTENERS: BROKER://kafka3:19094,EXTERNAL://kafka3:39094
@@ -91,9 +100,12 @@ kafka-ui:
     ports:
       - 8080:8080
     depends_on:
-      - broker
-      - schemaregistry
-      - kafka-connect
+      - kafka1
+      - kafka2
+      - kafka3
+    deploy:
+      mode: replicated
+      replicas: 1
     environment:
       KAFKA_CLUSTERS_0_NAME: cluster-0
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:39092,kafka2:39093,kafka3:39094
