@@ -80,7 +80,7 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     ports:
-      - 8080:8080
+      - 8180:8080
     depends_on:
       - kafka-1
       - kafka-2
@@ -89,8 +89,7 @@ services:
       mode: replicated
       replicas: 1
     networks:
-      kafka-net:
-        ipv4_address: 10.10.0.10
+      - kafka-net
     environment:
       KAFKA_CLUSTERS_0_NAME: cluster-0
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
