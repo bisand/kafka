@@ -9,7 +9,7 @@ ARG SCALA_VERSION=2.13
 WORKDIR /opt/kafka
 
 # Install necessary dependencies
-RUN apk add --no-cache openjdk11-jre bash
+RUN apk add --no-cache openjdk17-jre bash
 
 # Download and extract Kafka
 ADD https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz /opt/kafka
