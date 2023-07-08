@@ -22,9 +22,6 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-    volumes:
-      - kafka-1-data:/var/lib/kafka/data
-      - cluster-id:/tmp/clusterID
 
   kafka-2:
     image: bisand/kafka:2.13-3.5.0
@@ -47,9 +44,6 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-    volumes:
-      - kafka-2-data:/var/lib/kafka/data
-      - cluster-id:/tmp/clusterID
     # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
 
   kafka-3:
@@ -73,9 +67,6 @@ services:
       KAFKA_BROKER_ID: 3
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-    volumes:
-      - kafka-3-data:/var/lib/kafka/data
-      - cluster-id:/tmp/clusterID
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -136,12 +127,6 @@ secrets:
     external: true
   kafka_ui_client_secret:
     external: true
-
-volumes:
-  cluster-id:
-  kafka-1-data:
-  kafka-2-data:
-  kafka-3-data:
 
 networks:
   kafka-net:
