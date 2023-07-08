@@ -3,20 +3,21 @@ services:
 
   kafka-1:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka-1
     ports:
-      - 19092:9092
-      - 19093:9093
+      - 19092:19092
+      - 19093:19093
     deploy:
       mode: replicated
       replicas: 1
+    networks:
+      - kafka-net
     environment:
       CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
-      KAFKA_LISTENERS: BROKER://kafka-1:9092,CONTROLLER://kafka-1:9093,EXTERNAL://kafka-1:19092
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-1:9092,EXTERNAL://kafka-1:19092
-      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092,EXTERNAL_CONTROLLER://:19093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:19092,INTERNAL://kafka-1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
       KAFKA_NODE_ID: 1
       KAFKA_BROKER_ID: 1
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
@@ -27,20 +28,21 @@ services:
 
   kafka-2:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka-2
     ports:
-      - 29092:9092
-      - 29093:9093
+      - 29092:29092
+      - 29093:29093
     deploy:
       mode: replicated
       replicas: 1
+    networks:
+      - kafka-net
     environment:
       CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
-      KAFKA_LISTENERS: BROKER://kafka-2:9092,CONTROLLER://kafka-2:9093,EXTERNAL://kafka-2:29092
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-2:9092,EXTERNAL://kafka-2:29092
-      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:29092,EXTERNAL_CONTROLLER://:29093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:29092,INTERNAL://kafka-2:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
       KAFKA_NODE_ID: 2
       KAFKA_BROKER_ID: 2
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
@@ -52,20 +54,21 @@ services:
 
   kafka-3:
     image: bisand/kafka:2.13-3.5.0
-    hostname: kafka-3
     ports:
-      - 39092:9092
-      - 39093:9093
+      - 39092:39092
+      - 39093:39093
     deploy:
       mode: replicated
       replicas: 1
+    networks:
+      - kafka-net
     environment:
       CLUSTER_ID: INu0PetBQfSn-5yYX6taQg
-      KAFKA_LISTENERS: BROKER://kafka-3:9092,CONTROLLER://kafka-3:9093,EXTERNAL://kafka-3:39092
-      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-3:9092,EXTERNAL://kafka-3:39092
-      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:39092,EXTERNAL_CONTROLLER://:39093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:39092,INTERNAL://kafka-3:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
       KAFKA_NODE_ID: 3
       KAFKA_BROKER_ID: 3
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
@@ -73,7 +76,6 @@ services:
     volumes:
       - kafka-3-data:/var/lib/kafka/data
       - cluster-id:/tmp/clusterID
-    # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -86,6 +88,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    networks:
+      kafka-net:
+        ipv4_address: 10.10.0.10
     environment:
       KAFKA_CLUSTERS_0_NAME: cluster-0
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
@@ -99,8 +104,8 @@ services:
       # OAUTH2
       AUTH_TYPE: OAUTH2
       AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID: <client_id>
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: <client_secret>
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID:  <kafka_ui_client_id>
+      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: <kafka_ui_client_secret>
       AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
       AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
       AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
@@ -138,3 +143,19 @@ volumes:
   kafka-1-data:
   kafka-2-data:
   kafka-3-data:
+
+networks:
+  kafka-net:
+    driver: overlay
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/24
+          # ip_range: 10.10.0.0/24
+          # gateway: 172.28.5.254
+          # aux_addresses:
+            # kafka-ui: 10.10.0.10
+            # kafka-1: 10.10.0.11
+            # kafka-2: 10.10.0.12
+            # kafka-3: 10.10.0.13
