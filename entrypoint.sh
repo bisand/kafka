@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Hostname: ${HOSTNAME}, Replica: ${REPLICA}, Replicas: ${REPLICAS}, Share dir: ${SHARE_DIR}"
+echo "Hostname: ${HOSTNAME}, Replica: ${REPLICA}, Replicas: ${REPLICAS}, Share dir: ${SHARE_DIR} "
 
 NODE_ID=$((REPLICA - 1))
 
