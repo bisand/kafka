@@ -18,7 +18,7 @@ done
 
 mkdir -p $SHARE_DIR/$NODE_ID
 
-if [[ ! -f "$SHARE_DIR/cluster_id" && "$NODE_ID" = "1" ]]; then
+if [[ ! -f "$SHARE_DIR/cluster_id" && "$NODE_ID" = "0" ]]; then
     echo "Initializing cluster id"
     CLUSTER_ID=$(kafka-storage.sh random-uuid)
     echo $CLUSTER_ID > $SHARE_DIR/cluster_id
