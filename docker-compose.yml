@@ -1,7 +1,7 @@
 version: "3.5"
 services:
 
-  kafka-1:
+  kafka:
     image: bisand/kafka:2.13-3.6.0
     hostname: "kafka-{{.Task.Slot}}"
     ports:
@@ -34,9 +34,9 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     ports:
-      - 8180:8080
+      - 8080:8080
     depends_on:
-      - kafka-1
+      - kafka
     deploy:
       mode: replicated
       replicas: 1
