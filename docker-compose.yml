@@ -13,7 +13,7 @@ services:
     networks:
       - kafka-net
     environment:
-      REPLICAS: "{{.Service.Replicas}}"
+      REPLICAS: "{{.Task.Slots}}"
       REPLICA: "{{.Task.Slot}}"
       SERVICE: kafka-svc
       NAMESPACE: kafka-kraft
