@@ -13,7 +13,7 @@ services:
     networks:
       - kafka-net
     environment:
-      REPLICAS: "{{.Task.Slots}}"
+      REPLICAS: ${REPLICAS}
       REPLICA: "{{.Task.Slot}}"
       SERVICE: kafka-svc
       NAMESPACE: kafka-kraft
@@ -49,10 +49,10 @@ services:
 
       # BASIC AUTH
       AUTH_TYPE: 'LOGIN_FORM'
-      SPRING_SECURITY_USER_NAME: admin
-      SPRING_SECURITY_USER_PASSWORD: disrelish-clawing-skepticism-safelight
-      SPRINT_BOOT_ADMIN_CLIENT_USERNAME: admin
-      SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: disrelish-clawing-skepticism-safelight
+      SPRING_SECURITY_USER_NAME: ${KAFKA_UI_USERNAME}
+      SPRING_SECURITY_USER_PASSWORD: ${KAFKA_UI_PASSWORD}
+      SPRINT_BOOT_ADMIN_CLIENT_USERNAME: ${KAFKA_UI_USERNAME}
+      SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: ${KAFKA_UI_PASSWORD}
     # configs:
     #   - source: kafka_ui_roles
     #     target: /roles.yml
