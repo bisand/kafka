@@ -1,0 +1,9 @@
+version: '3'
+services:
+  test:
+    image: busybox
+    command: /bin/sh -c "echo My task number is $$task_id && tail -f /dev/null"
+    environment:
+      task_id: "{{.Task.Slot}}"
+    deploy:
+      replicas: 5

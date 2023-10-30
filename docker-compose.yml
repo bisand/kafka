@@ -2,71 +2,34 @@ version: "3.5"
 services:
 
   kafka-1:
-    image: bisand/kafka:2.13-3.5.0
+    image: bisand/kafka:2.13-3.6.0
+    hostname: "kafka-{{.Task.Slot}}"
     ports:
-      - 19092:19092
-      - 19093:19093
+      - 9092:9092
+      - 9093:9093
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
     networks:
       - kafka-net
     environment:
-      CLUSTER_ID: ${CLUSTER_ID}
-      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092,EXTERNAL_CONTROLLER://:19093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:19092,INTERNAL://kafka-1:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
-      KAFKA_NODE_ID: 1
-      KAFKA_BROKER_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-
-  kafka-2:
-    image: bisand/kafka:2.13-3.5.0
-    ports:
-      - 29092:29092
-      - 29093:29093
-    deploy:
-      mode: replicated
-      replicas: 1
-    networks:
-      - kafka-net
-    environment:
-      CLUSTER_ID: ${CLUSTER_ID}
-      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:29092,EXTERNAL_CONTROLLER://:29093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:29092,INTERNAL://kafka-2:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
-      KAFKA_NODE_ID: 2
-      KAFKA_BROKER_ID: 2
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-    # command: "bash -c '/tmp/update_run.sh && /etc/confluent/docker/run'"
-
-  kafka-3:
-    image: bisand/kafka:2.13-3.5.0
-    ports:
-      - 39092:39092
-      - 39093:39093
-    deploy:
-      mode: replicated
-      replicas: 1
-    networks:
-      - kafka-net
-    environment:
-      CLUSTER_ID: ${CLUSTER_ID}
-      KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:39092,EXTERNAL_CONTROLLER://:39093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:39092,INTERNAL://kafka-3:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
-      KAFKA_NODE_ID: 3
-      KAFKA_BROKER_ID: 3
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
-      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      REPLICAS: 3
+      REPLICA: "{{.Task.Slot}}"
+      SERVICE: kafka-svc
+      NAMESPACE: kafka-kraft
+      SHARE_DIR: /mnt/kafka
+      # CLUSTER_ID: ${CLUSTER_ID}
+      # KAFKA_LISTENERS: INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092,EXTERNAL_CONTROLLER://:19093
+      # KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka.publicnode.eu:19092,INTERNAL://kafka-1:9092
+      # KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      # KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER,EXTERNAL_CONTROLLER
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,EXTERNAL_CONTROLLER:PLAINTEXT
+      # KAFKA_NODE_ID: 1
+      # KAFKA_BROKER_ID: 1
+      # KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
+      # KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    volumes:
+      - kafka-data:/mnt/kafka
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -74,47 +37,40 @@ services:
       - 8180:8080
     depends_on:
       - kafka-1
-      - kafka-2
-      - kafka-3
     deploy:
       mode: replicated
       replicas: 1
     networks:
       - kafka-net
     environment:
-      KAFKA_CLUSTERS_0_NAME: cluster-0
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
-      #KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry:8085
-      #KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: cluster-0
-      #KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
       DYNAMIC_CONFIG_ENABLED: 'true'
       TRUST_STORE: '/opt/cert/ui-for-apache-kafka.p12'
       TRUST_STORE_PASSWORD: 'Fvck2022!'
 
       # OAUTH2
-      AUTH_TYPE: OAUTH2
-      AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID:  ${GITHUB_CLIENTID}
-      AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: ${GITHUB_CLIENTSECRET}
-      AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
-      AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
-      AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
-      AUTH_OAUTH2_CLIENT_GITHUB_REDIRECT_URI: https://kafka.publicnode.eu/login/oauth2/code/github
+      # AUTH_TYPE: OAUTH2
+      # AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
+      # AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID:  ${GITHUB_CLIENTID}
+      # AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: ${GITHUB_CLIENTSECRET}
+      # AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
+      # AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
+      # AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
+      # AUTH_OAUTH2_CLIENT_GITHUB_REDIRECT_URI: https://kafka.publicnode.eu/login/oauth2/code/github
 
       # BASIC AUTH
-      #AUTH_TYPE: 'LOGIN_FORM'
-      #SPRING_SECURITY_USER_NAME: vr-admin
-      #SPRING_SECURITY_USER_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
-      #SPRINT_BOOT_ADMIN_CLIENT_USERNAME: vr-admin
-      #SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: Clo9s1hQcMVBPnez5mciYINXjr4y0H44
-    configs:
-      - source: kafka_ui_roles
-        target: /roles.yml
-      - source: kafka_ui_sprint_config
-        target: /sprint-config.yml
-    secrets:
-      - kafka_ui_client_id
-      - kafka_ui_client_secret
+      AUTH_TYPE: 'LOGIN_FORM'
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: disrelish-clawing-skepticism-safelight
+      SPRINT_BOOT_ADMIN_CLIENT_USERNAME: admin
+      SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: disrelish-clawing-skepticism-safelight
+    # configs:
+    #   - source: kafka_ui_roles
+    #     target: /roles.yml
+    #   - source: kafka_ui_sprint_config
+    #     target: /sprint-config.yml
+    # secrets:
+    #   - kafka_ui_client_id
+    #   - kafka_ui_client_secret
 
 configs:
   kafka_ui_roles:
@@ -136,10 +92,7 @@ networks:
       driver: default
       config:
         - subnet: 10.10.0.0/24
-          # ip_range: 10.10.0.0/24
-          # gateway: 172.28.5.254
-          # aux_addresses:
-            # kafka-ui: 10.10.0.10
-            # kafka-1: 10.10.0.11
-            # kafka-2: 10.10.0.12
-            # kafka-3: 10.10.0.13
+
+volumes:
+  kafka-data:
+    driver: local
