@@ -89,4 +89,4 @@ volumes:
     driver_opts:
       device:	:/srv/nfs/kafka/
       type: nfs
-      o: addr=192.168.86.38,rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4

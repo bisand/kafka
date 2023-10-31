@@ -28,6 +28,8 @@ else
     echo "Cluster id: $CLUSTER_ID Node ID: $NODE_ID"
 fi
 
+rm $SHARE_DIR/$NODE_ID/__cluster_metadata-0/quorum-state
+
 sed -e "s+^node.id=.*+node.id=$NODE_ID+" \
 -e "s+^controller.quorum.voters=.*+controller.quorum.voters=$CONTROLLER_QUORUM_VOTERS+" \
 -e "s+^listeners=.*+listeners=$LISTENERS+" \
