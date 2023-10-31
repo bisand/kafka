@@ -13,10 +13,10 @@ services:
     networks:
       - kafka-net
     environment:
-      REPLICAS: ${REPLICAS}
       REPLICA: "{{.Task.Slot}}"
-      SERVICE: kafka-svc
-      NAMESPACE: kafka-kraft
+      REPLICAS: ${REPLICAS}
+      NFS_SERVER: ${NFS_SERVER}
+      PUBLIC_FQDN: ${PUBLIC_FQDN}
       SHARE_DIR: /mnt/kafka
     volumes:
       - kafka-data:/mnt/kafka
