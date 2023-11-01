@@ -7,7 +7,7 @@ services:
     ports:
       - 9092:9092
       - 9093:9093
-      - 29094:29094
+      - 29901-2990${REPLICAS}:29901-2990${REPLICAS}
     deploy:
       mode: replicated
       replicas: 5
