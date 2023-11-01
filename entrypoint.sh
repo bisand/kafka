@@ -4,6 +4,15 @@ echo "Hostname: ${HOSTNAME}, Replica: ${REPLICA}, Replicas: ${REPLICAS}, Share d
 
 NODE_ID=$((REPLICA - 1))
 
+if [[ ! $REPLICA = "1" ]]; then
+    for i in $(seq 1 $((REPLICA - 1))); do
+        while ! nc -z kafka-$i 9092 && ! nc -z kafka-$i 9093; do
+            echo "Waiting for kafka-$i to start..."
+            sleep 1
+        done
+    done
+fi
+
 LISTENERS_SECURITY_PROTOCOL_MAP="EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL"
 LISTENERS="EXTERNAL://:9091,INTERNAL://:9092,CONTROLLER://:9093"
 ADVERTISED_LISTENERS="EXTERNAL://$PUBLIC_FQDN:9091,INTERNAL://kafka-$((NODE_ID + 1)):9092"
