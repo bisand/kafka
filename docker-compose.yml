@@ -5,9 +5,9 @@ services:
     image: bisand/kafka:2.13-3.6.0
     hostname: "kafka-{{.Task.Slot}}"
     ports:
-      - 9091:9091
       - 9092:9092
       - 9093:9093
+      - 29094:29094
     deploy:
       mode: replicated
       replicas: 5
