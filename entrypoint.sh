@@ -4,9 +4,11 @@ echo "Hostname: ${HOSTNAME}, Replica: ${REPLICA}, Replicas: ${REPLICAS}, Share d
 
 NODE_ID=$((REPLICA - 1))
 
-LISTENERS_SECURITY_PROTOCOL_MAP="EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL"
-LISTENERS="PLAINTEXT://:9092,CONTROLLER://:9093"
-ADVERTISED_LISTENERS="EXTERNAL://$PUBLIC_FQDN:9092,PLAINTEXT://kafka-$((NODE_ID + 1)):9092"
+LISTENERS_SECURITY_PROTOCOL_MAP="EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL"
+LISTENERS="EXTERNAL://:9091,INTERNAL://:9092,CONTROLLER://:9093"
+ADVERTISED_LISTENERS="EXTERNAL://$PUBLIC_FQDN:9091,INTERNAL://kafka-$((NODE_ID + 1)):9092"
+INTER_BROKER_LISTENER_NAME="INTERNAL"
+CONTROLLER_LISTENER_NAMES="CONTROLLER,EXTERNAL"
 
 CONTROLLER_QUORUM_VOTERS=""
 for i in $( seq 0 $((REPLICAS)) ); do
@@ -37,6 +39,8 @@ sed -e "s+^node.id=.*+node.id=$NODE_ID+" \
 -e "s+^advertised.listeners=.*+advertised.listeners=$ADVERTISED_LISTENERS+" \
 -e "s+^log.dirs=.*+log.dirs=$SHARE_DIR/$NODE_ID+" \
 -e "s+^listener.security.protocol.map=.*+listener.security.protocol.map=$LISTENERS_SECURITY_PROTOCOL_MAP+" \
+-e "s+^kafka.inter.broker.listener.name=.*+kafka.inter.broker.listener.name=$INTER_BROKER_LISTENER_NAME+" \
+-e "s+^kafka.controller.listener.names=.*+kafka.controller.listener.names=$CONTROLLER_LISTENER_NAMES+" \
 /opt/kafka/config/kraft/server.properties > server.properties.updated \
 && mv server.properties.updated /opt/kafka/config/kraft/server.properties
 
