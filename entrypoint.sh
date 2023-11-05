@@ -5,6 +5,9 @@ CONFIG_FILE="/opt/kafka/config/kraft/custom/server.properties"
 mkdir -p /opt/kafka/config/kraft/custom
 cp $SOURCE_CONFIG_FILE $CONFIG_FILE
 
+export REPLICA="${REPLICA:-1}"
+export REPLICAS="${REPLICAS:-1}"
+
 DEFAULT_NODE_ID=$((REPLICA - 1))
 echo "###############################################"
 echo "Starting kafka node $DEFAULT_NODE_ID, replica $REPLICA of $REPLICAS"

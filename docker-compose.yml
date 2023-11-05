@@ -22,6 +22,29 @@ services:
     volumes:
       - kafka-data:/mnt/kafka
 
+  console:
+    image: docker.redpanda.com/vectorized/console:v2.3.3
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["kafka-1:9092","kafka-2:9092","kafka-3:9092","kafka-4:9092","kafka-5:9092"]
+          schemaRegistry:
+            enabled: false
+            urls: ["http://redpanda:8081"]
+        connect:
+          enabled: false
+          clusters:
+            - name: datagen
+              url: http://connect:8083
+    ports:
+      - "8380:8080"
+    depends_on:
+      - kafka
+
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     ports:
@@ -62,6 +85,8 @@ services:
     # secrets:
     #   - kafka_ui_client_id
     #   - kafka_ui_client_secret
+    volumes:
+      - kafka-ui-data:/etc/kafkaui/
 
 configs:
   kafka_ui_roles:
@@ -89,5 +114,11 @@ volumes:
     driver: local
     driver_opts:
       device:	:/srv/nfs/kafka/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+  kafka-ui-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka-ui/
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
