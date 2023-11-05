@@ -32,14 +32,6 @@ services:
       CONSOLE_CONFIG_FILE: |
         kafka:
           brokers: ["kafka-1:9092","kafka-2:9092","kafka-3:9092","kafka-4:9092","kafka-5:9092"]
-          schemaRegistry:
-            enabled: false
-            urls: ["http://redpanda:8081"]
-        connect:
-          enabled: false
-          clusters:
-            - name: datagen
-              url: http://connect:8083
     networks:
       - kafka-net
     ports:
