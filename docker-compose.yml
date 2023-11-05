@@ -40,6 +40,8 @@ services:
           clusters:
             - name: datagen
               url: http://connect:8083
+    networks:
+      - kafka-net
     ports:
       - "8380:8080"
     depends_on:
