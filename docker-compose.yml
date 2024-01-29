@@ -2,7 +2,7 @@ version: "3.5"
 services:
 
   kafka:
-    image: bisand/kafka:2.13-3.6.0
+    image: bisand/kafka:2.13-3.6.1
     hostname: "kafka-{{.Task.Slot}}"
     ports:
       - 9092:9092

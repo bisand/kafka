@@ -2,7 +2,7 @@
 FROM alpine:3.18
 
 # Set environment variables for Kafka version and Scala version
-ENV KAFKA_VERSION=3.6.0
+ENV KAFKA_VERSION=3.6.1
 ENV SCALA_VERSION=2.13
 ENV KAFKA_HOME=/opt/kafka
 ENV PATH=${PATH}:${KAFKA_HOME}/bin
