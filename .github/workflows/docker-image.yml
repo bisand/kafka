@@ -1,0 +1,57 @@
+name: Docker Image CI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            bisand/allegutta-proxy
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Set DOCKER_TAGS environment variable
+        if: steps.meta.outputs.tags != null
+        run: |
+          MULTI_LINES_TEXT="${{ steps.meta.outputs.tags }}"
+          echo "steps.meta.outputs.tags = ${{ steps.meta.outputs.tags }}"
+          echo "DOCKER_TAGS<<EOF" >> $GITHUB_ENV
+          echo $MULTI_LINES_TEXT >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Set alt DOCKER_TAGS environment variable
+        if: steps.meta.outputs.tags == null
+        run: echo "DOCKER_TAGS=bisand/allegutta-proxy:beta-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Test DOCKER_TAGS environment variable
+        run: echo "DOCKER_TAGS=${{ env.DOCKER_TAGS }}"
+
+      - name: Build and push allegutta-proxy Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile.proxy
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
