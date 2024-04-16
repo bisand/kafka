@@ -10,7 +10,7 @@ services:
       - 29901-2990${REPLICAS}:29901-2990${REPLICAS}
     deploy:
       mode: replicated
-      replicas: 5
+      replicas: 3
     networks:
       - kafka-net
     environment:

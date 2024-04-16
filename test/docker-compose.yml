@@ -6,4 +6,4 @@ services:
     environment:
       task_id: "{{.Task.Slot}}"
     deploy:
-      replicas: 5
+      replicas: 3
