@@ -2,7 +2,7 @@ version: "3.5"
 services:
 
   kafka:
-    image: bisand/kafka:2.13-3.6.1
+    image: bisand/kafka:2.13-3.7.0
     hostname: "kafka-{{.Task.Slot}}"
     ports:
       - 9092:9092
@@ -23,7 +23,7 @@ services:
       - kafka-data:/mnt/kafka
 
   console:
-    image: docker.redpanda.com/vectorized/console:v2.3.3
+    image: docker.redpanda.com/vectorized/console:latest
     restart: on-failure
     entrypoint: /bin/sh
     command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
