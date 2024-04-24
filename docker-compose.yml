@@ -136,6 +136,15 @@ secrets:
   kafka_ui_client_secret:
     external: true
 
+networks:
+  kafka-net:
+    driver: overlay
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/24
+
 volumes:
   kafka0-data:
     driver: local
