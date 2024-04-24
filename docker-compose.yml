@@ -26,8 +26,8 @@ services:
     image: confluentinc/cp-kafka:7.6.1
     hostname: kafka1
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9093:9092"
+      - "29093:29092"
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
@@ -47,8 +47,8 @@ services:
     image: confluentinc/cp-kafka:7.6.1
     hostname: kafka2
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "9094:9092"
+      - "29094:29092"
     environment:
       KAFKA_NODE_ID: 3
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
