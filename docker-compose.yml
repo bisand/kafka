@@ -37,6 +37,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    networks:
+      - kafka-net
     ports:
       - "8081:8081"
     environment:
