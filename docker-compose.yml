@@ -5,7 +5,7 @@ services:
     image: confluentinc/cp-kafka:7.6.1
     hostname: "broker{{.Task.Slot}}"
     ports:
-      - '909{{.Task.Slot}}:909{{.Task.Slot}}'
+      - 9091-9093:9091-9093
       - 19093:19093
       - 29092:29092
     deploy:
