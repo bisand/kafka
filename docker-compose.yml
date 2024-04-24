@@ -26,7 +26,7 @@ services:
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
     volumes:
-      - broker{{.Task.Slot}}-data:/var/lib/kafka/data
+      - "broker{{.Task.Slot}}-data:/var/lib/kafka/data"
 
   console:
     image: docker.redpanda.com/vectorized/console:latest
