@@ -103,6 +103,38 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
 
+  ksqldb-cli:
+    image: confluentinc/cp-ksqldb-cli:7.6.1
+    container_name: ksqldb-cli
+    depends_on:
+      - broker
+      - connect
+      - ksqldb-server
+    networks:
+      - kafka-net
+    entrypoint: /bin/sh
+    tty: true
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.6.1
+    depends_on:
+      - broker
+      - schema-registry
+    deploy:
+      mode: replicated
+      replicas: 2
+    networks:
+      - kafka-net
+    ports:
+      - 8082:8082
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+
   console:
     image: docker.redpanda.com/vectorized/console:latest
     restart: on-failure
