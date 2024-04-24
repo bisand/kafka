@@ -18,7 +18,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
       KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://${PUBLIC_FQDN}:9092'
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker0:9093,2@broker1:9093,3@broker2:9093'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093,2@broker2:9093,3@broker3:9093'
       KAFKA_LISTENERS: 'CONTROLLER://broker{{.Task.Slot}}:9093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
@@ -37,7 +37,7 @@ services:
       CONFIG_FILEPATH: /tmp/config.yml
       CONSOLE_CONFIG_FILE: |
         kafka:
-          brokers: ["broker0:9092","broker1:9092","broker3:9092"]
+          brokers: ["broker1:9092","broker2:9092","broker3:9092"]
     networks:
       - kafka-net
     ports:
