@@ -1,0 +1,118 @@
+version: "3.5"
+services:
+
+  kafka:
+    image: bisand/kafka:2.13-3.7.0
+    hostname: "kafka-{{.Task.Slot}}"
+    ports:
+      - 9092:9092
+      - 9093:9093
+      - 29901-2990${REPLICAS}:29901-2990${REPLICAS}
+    deploy:
+      mode: replicated
+      replicas: 3
+    networks:
+      - kafka-net
+    environment:
+      REPLICA: "{{.Task.Slot}}"
+      REPLICAS: ${REPLICAS}
+      NFS_SERVER: ${NFS_SERVER}
+      PUBLIC_FQDN: ${PUBLIC_FQDN}
+      SHARE_DIR: /mnt/kafka
+    volumes:
+      - kafka-data:/mnt/kafka
+
+  console:
+    image: docker.redpanda.com/vectorized/console:latest
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["kafka-1:9092","kafka-2:9092","kafka-3:9092"]
+    networks:
+      - kafka-net
+    ports:
+      - "8380:8080"
+    depends_on:
+      - kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8280:8080
+    depends_on:
+      - kafka
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - kafka-net
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      TRUST_STORE: '/opt/cert/ui-for-apache-kafka.p12'
+      TRUST_STORE_PASSWORD: 'Fvck2022!'
+
+      # OAUTH2
+      # AUTH_TYPE: OAUTH2
+      # AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER: github
+      # AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID:  ${GITHUB_CLIENTID}
+      # AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET: ${GITHUB_CLIENTSECRET}
+      # AUTH_OAUTH2_CLIENT_GITHUB_SCOPE: read:org
+      # AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE: login
+      # AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE: github
+      # AUTH_OAUTH2_CLIENT_GITHUB_REDIRECT_URI: https://kafka.publicnode.eu/login/oauth2/code/github
+
+      # BASIC AUTH
+      AUTH_TYPE: 'LOGIN_FORM'
+      SPRING_SECURITY_USER_NAME: ${KAFKA_UI_USERNAME}
+      SPRING_SECURITY_USER_PASSWORD: ${KAFKA_UI_PASSWORD}
+      SPRINT_BOOT_ADMIN_CLIENT_USERNAME: ${KAFKA_UI_USERNAME}
+      SPRINT_BOOT_ADMIN_CLIENT_PASSWORD: ${KAFKA_UI_PASSWORD}
+    # configs:
+    #   - source: kafka_ui_roles
+    #     target: /roles.yml
+    #   - source: kafka_ui_sprint_config
+    #     target: /sprint-config.yml
+    # secrets:
+    #   - kafka_ui_client_id
+    #   - kafka_ui_client_secret
+    volumes:
+      - kafka-ui-data:/etc/kafkaui/
+
+configs:
+  kafka_ui_roles:
+    external: true
+  kafka_ui_sprint_config:
+    external: true
+
+secrets:
+  kafka_ui_client_id:
+    external: true
+  kafka_ui_client_secret:
+    external: true
+
+networks:
+  kafka-net:
+    driver: overlay
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/24
+
+volumes:
+  kafka-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+  kafka-ui-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka-ui/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4

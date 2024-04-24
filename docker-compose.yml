@@ -1,26 +1,68 @@
 version: "3.5"
 services:
 
-  kafka:
-    image: bisand/kafka:2.13-3.7.0
-    hostname: "kafka-{{.Task.Slot}}"
+  kafka0:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: kafka0
     ports:
-      - 9092:9092
-      - 9093:9093
-      - 29901-2990${REPLICAS}:29901-2990${REPLICAS}
-    deploy:
-      mode: replicated
-      replicas: 3
-    networks:
-      - kafka-net
+      - "9092:9092"
+      - "29092:29092"
     environment:
-      REPLICA: "{{.Task.Slot}}"
-      REPLICAS: ${REPLICAS}
-      NFS_SERVER: ${NFS_SERVER}
-      PUBLIC_FQDN: ${PUBLIC_FQDN}
-      SHARE_DIR: /mnt/kafka
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://kafka0:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka0:29093,2@kafka1:29093,3@kafka2:29093'
+      KAFKA_LISTENERS: 'CONTROLLER://kafka0:29093,LISTENER_INTERNAL://kafka0:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+      CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
     volumes:
-      - kafka-data:/mnt/kafka
+      - kafka0-data:/var/lib/kafka/data
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: kafka1
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://kafka1:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka0:29093,2@kafka1:29093,3@kafka2:29093'
+      KAFKA_LISTENERS: 'CONTROLLER://kafka1:29093,LISTENER_INTERNAL://kafka1:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+      CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.6.1
+    hostname: kafka2
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://kafka2:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka0:29093,2@kafka1:29093,3@kafka2:29093'
+      KAFKA_LISTENERS: 'CONTROLLER://kafka2:29093,LISTENER_INTERNAL://kafka2:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+      CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
+    volumes:
+      - kafka2-data:/var/lib/kafka/data
 
   console:
     image: docker.redpanda.com/vectorized/console:latest
@@ -94,20 +136,23 @@ secrets:
   kafka_ui_client_secret:
     external: true
 
-networks:
-  kafka-net:
-    driver: overlay
-    attachable: true
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.10.0.0/24
-
 volumes:
-  kafka-data:
+  kafka0-data:
     driver: local
     driver_opts:
-      device:	:/srv/nfs/kafka/
+      device:	:/srv/nfs/kafka/kafka0/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+  kafka1-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka/kafka1/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+  kafka2-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka/kafka2/
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
   kafka-ui-data:
