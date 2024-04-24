@@ -105,6 +105,7 @@ services:
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.6.1
+    hostname: ksqldb-cli
     container_name: ksqldb-cli
     depends_on:
       - broker
