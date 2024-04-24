@@ -5,8 +5,8 @@ services:
     image: confluentinc/cp-kafka:7.6.1
     hostname: "broker{{.Task.Slot}}"
     ports:
-      - 9092:9092
-      - 9093:9093
+      - 909{{.Task.Slot}}:909{{.Task.Slot}}
+      - 19093:19093
       - 29092:29092
     deploy:
       mode: replicated
@@ -16,10 +16,10 @@ services:
     environment:
       KAFKA_NODE_ID: '{{.Task.Slot}}'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://${PUBLIC_FQDN}:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://${PUBLIC_FQDN}:909{{.Task.Slot}}'
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093,2@broker2:9093,3@broker3:9093'
-      KAFKA_LISTENERS: 'CONTROLLER://broker{{.Task.Slot}}:9093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:9092'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker1:19093,2@broker2:19093,3@broker3:19093'
+      KAFKA_LISTENERS: 'CONTROLLER://broker{{.Task.Slot}}:19093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:909{{.Task.Slot}}'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
