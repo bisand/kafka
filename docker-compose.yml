@@ -28,6 +28,22 @@ services:
     volumes:
       - broker-data:/var/lib/kafka/data
 
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    deploy:
+      mode: replicated
+      replicas: 1
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
   console:
     image: docker.redpanda.com/vectorized/console:latest
     restart: on-failure
