@@ -22,6 +22,7 @@ services:
       KAFKA_LISTENERS: 'CONTROLLER://broker{{.Task.Slot}}:19093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:909{{.Task.Slot}}'
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
