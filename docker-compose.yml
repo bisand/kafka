@@ -125,6 +125,11 @@ services:
       - schema-registry
       - connect
       - ksqldb-server
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - kafka-net
     ports:
       - "9021:9021"
     environment:
