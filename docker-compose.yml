@@ -47,7 +47,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   kafka-connect:
-    image: bisand/kafka-connect-snowflake:2.2.2
+    image: bisand/snowflake-kafka-connect:2.2.2
     hostname: kafka-connect
     container_name: kafka-connect
     depends_on:
