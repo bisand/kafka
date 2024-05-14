@@ -80,17 +80,17 @@ services:
     volumes:
       - kafka-ui-data:/data
 
-    command:
-      - bash
-      - -c
-      - |
-        echo "Installing Snowflake Connector"
-        confluent-hub install --no-prompt snowflakeinc/snowflake-kafka-connector:2.2.2
-        #
-        echo "Launching Kafka Connect worker"
-        /etc/confluent/docker/run &
-        #
-        sleep infinity
+    # command:
+    #   - bash
+    #   - -c
+    #   - |
+    #     echo "Installing Snowflake Connector"
+    #     confluent-hub install --no-prompt snowflakeinc/snowflake-kafka-connector:2.2.2
+    #     #
+    #     echo "Launching Kafka Connect worker"
+    #     /etc/confluent/docker/run &
+    #     #
+    #     sleep infinity
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.6.1
