@@ -77,7 +77,7 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes:
-      - kafka-connect-data:/data
+      - kafka-connect-data:/var/lib/kafka/data
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.6.1
