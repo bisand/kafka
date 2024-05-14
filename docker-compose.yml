@@ -77,6 +77,9 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    volumes:
+      - kafka-ui-data:/data
+
     command:
       - bash
       - -c
@@ -270,5 +273,11 @@ volumes:
     driver: local
     driver_opts:
       device:	:/srv/nfs/kafka-ui/
+      type: nfs
+      o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
+  kafka-connect-data:
+    driver: local
+    driver_opts:
+      device:	:/srv/nfs/kafka-connect/
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
