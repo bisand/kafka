@@ -48,7 +48,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect-base:7.6.1
+    image: cnfldemos/kafka-connect-datagen:0.6.4-7.6.0
     hostname: kafka-connect
     container_name: kafka-connect
     depends_on:
