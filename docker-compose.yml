@@ -48,7 +48,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   kafka-connect:
-    image: bisand/snowflake-kafka-connect:2.2.2
+    image: confluentinc/cp-kafka-connect-base:7.6.1
     hostname: kafka-connect
     container_name: kafka-connect
     depends_on:
@@ -75,8 +75,19 @@ services:
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing Snowflake Connector"
+        confluent-hub install --no-prompt snowflakeinc/snowflake-kafka-connector:2.2.2
+        #
+        echo "Launching Kafka Connect worker"
+        /etc/confluent/docker/run &
+        #
+        sleep infinity
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.6.1
