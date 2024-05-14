@@ -1,6 +1,5 @@
 version: "3.5"
 services:
-
   broker:
     image: confluentinc/cp-kafka:7.6.1
     hostname: "broker{{.Task.Slot}}"
@@ -14,18 +13,18 @@ services:
     networks:
       - kafka-net
     environment:
-      KAFKA_NODE_ID: '{{.Task.Slot}}'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://${PUBLIC_FQDN}:909{{.Task.Slot}}'
-      KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker1:19093,2@broker2:19093,3@broker3:19093'
-      KAFKA_LISTENERS: 'CONTROLLER://broker{{.Task.Slot}}:19093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:909{{.Task.Slot}}'
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_INTERNAL'
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
+      KAFKA_NODE_ID: "{{.Task.Slot}}"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://${PUBLIC_FQDN}:909{{.Task.Slot}}"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@broker1:19093,2@broker2:19093,3@broker3:19093"
+      KAFKA_LISTENERS: "CONTROLLER://broker{{.Task.Slot}}:19093,LISTENER_INTERNAL://broker{{.Task.Slot}}:29092,LISTENER_EXTERNAL://0.0.0.0:909{{.Task.Slot}}"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "LISTENER_INTERNAL"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "broker1:29092,broker2:29092,broker3:29092"
       # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
-      CLUSTER_ID: 'Asvu9rC0SdeSKJQAKgD9xw'
+      CLUSTER_ID: "Asvu9rC0SdeSKJQAKgD9xw"
     volumes:
       - broker-data:/var/lib/kafka/data
 
@@ -44,11 +43,11 @@ services:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker1:29092,broker2:29092,broker3:29092"
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   kafka-connect:
-    image: cnfldemos/kafka-connect-datagen:0.6.4-7.6.0
+    image: bisand/kafka-connect-snowflake:2.2.2
     hostname: kafka-connect
     container_name: kafka-connect
     depends_on:
@@ -62,7 +61,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
+      CONNECT_BOOTSTRAP_SERVERS: "broker1:29092,broker2:29092,broker3:29092"
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
       CONNECT_GROUP_ID: snowflake-kafka-connect
       CONNECT_CONFIG_STORAGE_TOPIC: snowflake-kafka-connect-configs
@@ -78,19 +77,7 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     volumes:
-      - kafka-ui-data:/data
-
-    # command:
-    #   - bash
-    #   - -c
-    #   - |
-    #     echo "Installing Snowflake Connector"
-    #     confluent-hub install --no-prompt snowflakeinc/snowflake-kafka-connector:2.2.2
-    #     #
-    #     echo "Launching Kafka Connect worker"
-    #     /etc/confluent/docker/run &
-    #     #
-    #     sleep infinity
+      - kafka-connect-data:/data
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.6.1
@@ -115,8 +102,8 @@ services:
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
-      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
-      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.6.1
@@ -148,9 +135,9 @@ services:
     ports:
       - "9021:9021"
     environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
-      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'kafka-connect:8083'
-      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: '/connectors'
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: "broker1:29092,broker2:29092,broker3:29092"
+      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: "kafka-connect:8083"
+      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: "/connectors"
       CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
       CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
@@ -176,9 +163,9 @@ services:
     container_name: rest-proxy
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker1:29092,broker2:29092,broker3:29092'
+      KAFKA_REST_BOOTSTRAP_SERVERS: "broker1:29092,broker2:29092,broker3:29092"
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
-      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
 
   console:
     image: docker.redpanda.com/vectorized/console:latest
@@ -209,9 +196,9 @@ services:
     networks:
       - kafka-net
     environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-      TRUST_STORE: '/opt/cert/ui-for-apache-kafka.p12'
-      TRUST_STORE_PASSWORD: 'Fvck2022!'
+      DYNAMIC_CONFIG_ENABLED: "true"
+      TRUST_STORE: "/opt/cert/ui-for-apache-kafka.p12"
+      TRUST_STORE_PASSWORD: "Fvck2022!"
 
       # OAUTH2
       # AUTH_TYPE: OAUTH2
@@ -224,7 +211,7 @@ services:
       # AUTH_OAUTH2_CLIENT_GITHUB_REDIRECT_URI: https://kafka.publicnode.eu/login/oauth2/code/github
 
       # BASIC AUTH
-      AUTH_TYPE: 'LOGIN_FORM'
+      AUTH_TYPE: "LOGIN_FORM"
       SPRING_SECURITY_USER_NAME: ${KAFKA_UI_USERNAME}
       SPRING_SECURITY_USER_PASSWORD: ${KAFKA_UI_PASSWORD}
       SPRINT_BOOT_ADMIN_CLIENT_USERNAME: ${KAFKA_UI_USERNAME}
@@ -263,21 +250,21 @@ networks:
 
 volumes:
   broker-data:
-    name: 'broker-data-{{.Task.Slot}}'
+    name: "broker-data-{{.Task.Slot}}"
     driver: local
     driver_opts:
-      device:	':/srv/nfs/kafka/broker{{.Task.Slot}}/'
+      device: ":/srv/nfs/kafka/broker{{.Task.Slot}}/"
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
   kafka-ui-data:
     driver: local
     driver_opts:
-      device:	:/srv/nfs/kafka-ui/
+      device: :/srv/nfs/kafka-ui/
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
   kafka-connect-data:
     driver: local
     driver_opts:
-      device:	:/srv/nfs/kafka-connect/
+      device: :/srv/nfs/kafka-connect/
       type: nfs
       o: addr=${NFS_SERVER},rw,noatime,nolock,rsize=32768,wsize=32768,tcp,timeo=14,nfsvers=4,nfsvers=4
